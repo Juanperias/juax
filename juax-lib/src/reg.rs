@@ -3,7 +3,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum RegError {
     #[error("Register {0} not exist")]
-    RegNotExist(u32)
+    RegNotExist(i32)
 }
 
 #[derive(Debug, Hash, PartialEq, PartialOrd, Eq)]
@@ -14,10 +14,10 @@ pub enum Reg {
 
 macro_rules! from_hex {
     ($($number:expr, $variant:ident),*) => {
-            impl TryFrom<u32> for Reg {
+            impl TryFrom<i32> for Reg {
                 type Error = RegError;
 
-                fn try_from(value: u32) -> Result<Self, Self::Error> {
+                fn try_from(value: i32) -> Result<Self, Self::Error> {
                     $(
                         if value == $number {
                             return Ok(Self::$variant);
