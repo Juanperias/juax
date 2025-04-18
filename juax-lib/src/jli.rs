@@ -22,7 +22,7 @@ impl JliFile {
         }
     }
     pub fn write(&mut self, opcode: Opcode) {
-        todo!();
+        self.content.extend(opcode.to_bytes());
     }
     pub fn save(&self, output: String) -> Result<(), JliError> {
         let mut file = File::create(output)?;

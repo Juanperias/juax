@@ -15,6 +15,9 @@ impl Opcode {
             imm: code[(pc - 1) as usize],
         }
     }
+    pub fn to_bytes(&self) -> Vec<u32> {
+        vec![self.ins, self.arg2, self.arg1, self.imm]
+    }
 }
 
 pub fn encode_imm(imm: i32) -> u32 {
