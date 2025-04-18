@@ -1,4 +1,5 @@
 pub mod ins;
+pub mod jli;
 pub mod opcode;
 pub mod reg;
 

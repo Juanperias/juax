@@ -32,4 +32,3 @@ pub fn decode_imm(encoded: u32) -> i32 {
         -(abs_value as i32)
     }
 }
-
