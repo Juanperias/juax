@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
+logos = "0.15.0"
+juax-lib = { path = "../juax-lib/" }
+thiserror = "2.0.12"
