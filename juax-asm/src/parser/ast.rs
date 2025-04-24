@@ -89,9 +89,7 @@ impl Parser {
                 let to = cmp!(self, Token::Register(_)).get_content()?;
                 cmp!(self, Token::Comma);
                 
-                let from = cmp!(self, Token::Register(_)).get_content()?;
-
-            
+                let from = cmp!(self, Token::Register(_)).get_content()?;        
 
                 self.bump(AstNode::Mov {
                     from: Reg::try_from(from)?,
