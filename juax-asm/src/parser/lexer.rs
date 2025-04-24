@@ -1,6 +1,13 @@
 use logos::Logos;
+use thiserror::Error;
 
-#[derive(Logos, Debug)]
+#[derive(Error, Debug)]
+pub enum TokenError {
+    #[error("Token without value {0:?}")]
+    TokenWithoutValue(Token)
+} 
+
+#[derive(Logos, Debug, Clone, PartialEq, Eq)]
 #[logos(skip r"[ \t\n\f]+")]
 pub enum Token {
     #[token("mov")]
@@ -20,4 +27,14 @@ pub enum Token {
 
     #[token(",")]
     Comma
+}
+
+impl Token {
+    pub fn get_content(&self) -> Result<String, TokenError> {
+        Ok(match self {
+            Self::Register(reg) => reg.to_string(),
+            Self::Label(label) => label.to_string(),
+            _ => { return Err(TokenError::TokenWithoutValue(self.clone())) },
+        })
+    }
 }
