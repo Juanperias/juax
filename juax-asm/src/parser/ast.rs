@@ -1,7 +1,10 @@
-use std::{iter::Peekable, vec::IntoIter};
+use std::{iter::Peekable, num::ParseIntError, vec::IntoIter};
 
 use super::lexer::{Token, TokenError};
-use juax_lib::reg::{Reg, RegError};
+use juax_lib::{
+    opcode::encode_imm,
+    reg::{Reg, RegError},
+};
 use logos::Lexer;
 use thiserror::Error;
 
@@ -21,6 +24,9 @@ pub enum AstError {
 
     #[error("Reg Error {0}")]
     RegError(#[from] RegError),
+
+    #[error("Parse Int Error {0}")]
+    ParserIntError(#[from] ParseIntError),
 }
 
 macro_rules! cmp {
@@ -40,6 +46,7 @@ macro_rules! cmp {
 #[derive(Debug, Clone)]
 pub enum AstNode {
     Mov { to: Reg, from: Reg },
+    Load { dist: Reg, val: u32 },
     Label { name: String, body: Vec<AstNode> },
 }
 
@@ -54,7 +61,6 @@ impl Parser {
     }
     pub fn bump(&mut self, node: AstNode) {
         self.tree.push(node);
-        self.iter.next();
     }
     pub fn next(&mut self) {
         self.iter.next();
@@ -90,6 +96,17 @@ impl Parser {
                 self.bump(AstNode::Mov {
                     from: Reg::try_from(from)?,
                     to: Reg::try_from(to)?,
+                });
+            }
+            Some(Token::Load) => {
+                self.next();
+                let dist = cmp!(self, Token::Register(_)).get_content()?;
+                cmp!(self, Token::Comma);
+                let val = cmp!(self, Token::Number(_)).get_content()?.parse::<i32>()?;
+
+                self.bump(AstNode::Load {
+                    dist: Reg::try_from(dist)?,
+                    val: encode_imm(val),
                 });
             }
             Some(v) => {

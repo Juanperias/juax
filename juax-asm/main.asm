@@ -1,1 +1,2 @@
-mov a0, a1
+load a0, -90 
+mov a1, a0

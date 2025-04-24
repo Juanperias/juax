@@ -16,6 +16,11 @@ pub enum Token {
     #[regex("[a-zA-Z0-9]+", |lex| lex.slice().to_string())]
     Register(String),
 
+    #[regex(r"-?\d+\s", |lex| {
+        lex.slice().trim().to_string()
+    })]
+    Number(String),
+
     #[regex("[a-zA-Z0-9_]+:", |lex| { 
         let mut name = lex.slice().to_string();
 
@@ -27,6 +32,9 @@ pub enum Token {
 
     #[token(",")]
     Comma,
+
+    #[token("load")]
+    Load,
 }
 
 impl Token {
@@ -34,6 +42,7 @@ impl Token {
         Ok(match self {
             Self::Register(reg) => reg.to_string(),
             Self::Label(label) => label.to_string(),
+            Self::Number(n) => n.to_string(),
             _ => return Err(TokenError::TokenWithoutValue(self.clone())),
         })
     }

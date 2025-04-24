@@ -16,6 +16,12 @@ pub fn decode_node(node: AstNode) -> Result<Opcode, DecodeError> {
             imm: 0,
             ins: 0x04,
         },
+        AstNode::Load { dist, val } => Opcode {
+            arg1: dist.into(),
+            arg2: 0x0,
+            imm: val,
+            ins: 0x02,
+        },
         _ => {
             return Err(DecodeError::InvalidNode(node));
         }

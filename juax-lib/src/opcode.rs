@@ -16,7 +16,7 @@ impl Opcode {
         }
     }
     pub fn to_bytes(&self) -> Vec<u32> {
-        vec![self.ins, self.arg2, self.arg1, self.imm]
+        vec![self.ins, self.arg1, self.arg2, self.imm]
     }
 }
 

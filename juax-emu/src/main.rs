@@ -1,33 +1,18 @@
 pub mod cli;
 
 use clap::Parser;
-use juax_lib::{
-    Cpu,
-    opcode::{decode_imm, encode_imm},
-    reg::Reg,
-};
+use cli::Cli;
+use juax_lib::{Cpu, jli::JliFile};
 
-fn main() {
-    let mut cpu = Cpu::new(vec![
-        0x2,
-        0x2,
-        0x0,
-        10,
-        0x4,
-        0x1,
-        0x2,
-        0x00,
-        0x2,
-        0x1,
-        0x0,
-        encode_imm(-41),
-    ]);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+    let jli = JliFile::read(cli.file)?;
 
-    cpu.run().unwrap();
+    let mut cpu = Cpu::new(jli.content);
 
-    let parsed = cli::Cli::parse();
-    let s = std::fs::read_to_string(parsed.file).unwrap();
-    println!("{}", s);
+    cpu.run(cli.speed).unwrap();
 
-    println!("{}", decode_imm(*cpu.regs.get(&Reg::A0).unwrap()));
+    println!("{:?}", cpu.regs);
+
+    Ok(())
 }
