@@ -1,9 +1,9 @@
 use std::{iter::Peekable, vec::IntoIter};
 
+use super::lexer::{Token, TokenError};
 use juax_lib::reg::{Reg, RegError};
 use logos::Lexer;
 use thiserror::Error;
-use super::lexer::{Token, TokenError}; 
 
 #[derive(Error, Debug)]
 pub enum AstError {
@@ -20,7 +20,7 @@ pub enum AstError {
     TokenError(#[from] TokenError),
 
     #[error("Reg Error {0}")]
-    RegError(#[from] RegError)
+    RegError(#[from] RegError),
 }
 
 macro_rules! cmp {
@@ -28,30 +28,24 @@ macro_rules! cmp {
         if let Some(v) = $parser.peek() {
             $parser.next();
             match v {
-                $pattern => v, 
+                $pattern => v,
                 _ => return Err(AstError::UnexpectedEof),
             }
         } else {
-            return Err(AstError::UnexpectedEof); 
+            return Err(AstError::UnexpectedEof);
         }
     }};
 }
 
 #[derive(Debug, Clone)]
 pub enum AstNode {
-    Mov {
-        to: Reg,
-        from: Reg,
-    },
-    Label {
-        name: String,
-        body: Vec<AstNode>
-    }
+    Mov { to: Reg, from: Reg },
+    Label { name: String, body: Vec<AstNode> },
 }
 
 pub struct Parser {
     pub tree: Vec<AstNode>,
-    pub iter: Peekable<IntoIter<Token>>
+    pub iter: Peekable<IntoIter<Token>>,
 }
 
 impl Parser {
@@ -71,35 +65,37 @@ impl Parser {
 
         while let Some(token) = lex.next() {
             match token {
-                Ok(v) => { iter.push(v) },
-                Err(()) => { return Err(AstError::InvalidToken(lex.slice().to_string())); }
+                Ok(v) => iter.push(v),
+                Err(()) => {
+                    return Err(AstError::InvalidToken(lex.slice().to_string()));
+                }
             }
         }
 
         Ok(Parser {
             iter: iter.into_iter().peekable(),
-            tree: Vec::new()
+            tree: Vec::new(),
         })
     }
-    
-    pub fn handle(&mut self) -> Result<(), AstError> { 
+
+    pub fn handle(&mut self) -> Result<(), AstError> {
         match self.peek() {
             Some(Token::Mov) => {
                 self.next();
                 let to = cmp!(self, Token::Register(_)).get_content()?;
                 cmp!(self, Token::Comma);
-                
-                let from = cmp!(self, Token::Register(_)).get_content()?;        
+
+                let from = cmp!(self, Token::Register(_)).get_content()?;
 
                 self.bump(AstNode::Mov {
                     from: Reg::try_from(from)?,
-                    to: Reg::try_from(to)?
+                    to: Reg::try_from(to)?,
                 });
-            },
+            }
             Some(v) => {
                 return Err(AstError::UnexpectedToken(v));
-            },
-            None => {},
+            }
+            None => {}
         }
 
         Ok(())

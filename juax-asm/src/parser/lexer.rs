@@ -4,8 +4,8 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum TokenError {
     #[error("Token without value {0:?}")]
-    TokenWithoutValue(Token)
-} 
+    TokenWithoutValue(Token),
+}
 
 #[derive(Logos, Debug, Clone, PartialEq, Eq)]
 #[logos(skip r"[ \t\n\f]+")]
@@ -26,7 +26,7 @@ pub enum Token {
     Label(String),
 
     #[token(",")]
-    Comma
+    Comma,
 }
 
 impl Token {
@@ -34,7 +34,7 @@ impl Token {
         Ok(match self {
             Self::Register(reg) => reg.to_string(),
             Self::Label(label) => label.to_string(),
-            _ => { return Err(TokenError::TokenWithoutValue(self.clone())) },
+            _ => return Err(TokenError::TokenWithoutValue(self.clone())),
         })
     }
 }

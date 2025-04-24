@@ -1,13 +1,13 @@
 use asm::decode::decode_tree;
-use cli::Cli;
 use clap::Parser as CliParser;
+use cli::Cli;
 use logos::Logos;
 use parser::{ast::Parser, lexer::Token};
 use std::fs;
 
+mod asm;
 mod cli;
 mod parser;
-mod asm;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut lexer = Token::lexer(&content);
     let parsed = Parser::new(&mut lexer)?.parse()?;
     let jli = decode_tree(parsed)?;
-
     jli.save(cli.output)?;
+
     Ok(())
 }
